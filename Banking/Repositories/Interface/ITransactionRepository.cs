@@ -1,0 +1,7 @@
+﻿public interface ITransactionRepository
+{
+    Task Add(Transaction transaction);
+    Task<List<Transaction>> GetByAccount(int accountId);
+    Task<(List<Transaction>, int)> GetPagedFiltered(
+    int accountId, int page, int size, string type, string sort);
+}
