@@ -9,12 +9,19 @@
         _passwordService = passwordService;
     }
 
-    public async Task Create(AccountDto dto)
+    public async Task Create(AccountDto dto, string email) // ✅ accept email
     {
+        // ❌ Prevent multiple accounts
+        var existing = (await _repo.GetAll())
+            .FirstOrDefault(a => a.Email == email);
+
+        if (existing != null)
+            throw new Exception("User already has an account ❌");
+
         var account = new Account
         {
             AccountHolderName = dto.AccountHolderName,
-            Email = dto.Email,
+            Email = email, // ✅ from JWT
             Phone = dto.Phone,
             PasswordHash = _passwordService.HashPassword(dto.Password)
         };

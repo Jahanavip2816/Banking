@@ -10,11 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 QuestPDF.Settings.License = LicenseType.Community;
 
 
-// ================= DATABASE =================
 builder.Services.AddDbContext<BankingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-// ================= SERVICES =================
 builder.Services.AddScoped<PasswordService>();
 builder.Services.AddScoped<JwtService>();
 
@@ -31,18 +29,15 @@ builder.Services.AddControllers()
         options.JsonSerializerOptions.ReferenceHandler =
             System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
-// ================= SWAGGER =================
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    // ✅ REQUIRED (THIS FIXES YOUR ERROR)
     options.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "Banking API",
         Version = "v1"
     });
 
-    // JWT Support
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Name = "Authorization",
@@ -68,7 +63,6 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
-// ================= JWT AUTH =================
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -95,9 +89,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowReact",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5173") 
+                  .AllowAnyHeader()
+                  .AllowAnyMethod()
+                  .AllowCredentials();
+        });
+});
+
 var app = builder.Build();
 
-// ================= MIDDLEWARE =================
 app.UseSwagger();
 
 app.UseSwaggerUI(c =>
@@ -107,6 +112,7 @@ app.UseSwaggerUI(c =>
 
 app.UseMiddleware<ExceptionMiddleware>();
 
+app.UseCors("AllowReact");
 app.UseAuthentication();
 app.UseAuthorization();
 

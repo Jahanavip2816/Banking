@@ -23,6 +23,12 @@ public class UserController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register(User user)
     {
+        var exists = await _context.Users
+            .AnyAsync(x => x.Username == user.Username || x.Email == user.Email);
+
+        if (exists)
+            return BadRequest("User already exists");
+
         user.Password = _passwordService.HashPassword(user.Password);
 
         await _context.Users.AddAsync(user);
@@ -31,26 +37,27 @@ public class UserController : ControllerBase
         return Ok("User registered successfully");
     }
 
-    // LOGIN
     [HttpPost("login")]
     public async Task<IActionResult> Login(User login)
     {
         var user = await _context.Users
-            .FirstOrDefaultAsync(x => x.Username == login.Username);
+            .FirstOrDefaultAsync(x =>
+                x.Username.ToLower() == login.Username.ToLower()
+                || x.Email.ToLower() == login.Username.ToLower());
 
         if (user == null)
-            return Unauthorized("Invalid username");
+            return Unauthorized("Invalid username/email");
 
         var valid = _passwordService.VerifyPassword(login.Password, user.Password);
 
         if (!valid)
             return Unauthorized("Invalid password");
 
-        var token = _jwtService.GenerateToken(user.Username);
+        var token = _jwtService.GenerateToken(user);
 
         return Ok(new
         {
-            Token = token
+            token = token
         });
     }
 }

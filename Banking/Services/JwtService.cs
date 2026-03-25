@@ -12,19 +12,16 @@ public class JwtService
         _config = config;
     }
 
-    public string GenerateToken(string username)
+    public string GenerateToken(User user)
     {
         var claims = new[]
         {
-        new Claim(ClaimTypes.Name, username)
-    };
-
-        var keyString = _config["Jwt:Key"];
-        if (string.IsNullOrEmpty(keyString))
-            throw new InvalidOperationException("JWT key is not configured.");
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Email, user.Email)
+        };
 
         var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(keyString));
+            Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
 
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
