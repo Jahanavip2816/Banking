@@ -1,0 +1,178 @@
+/* BACKGROUND WRAPPER */
+.bg-wrapper {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* BACKGROUND IMAGE */
+.bg-image {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+}
+/* FULL PAGE BACKGROUND */
+.app-bg {
+  position: fixed;   /* 🔥 key for full coverage */
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  background: url("/images/bank3.jpg") no-repeat center center;
+  background-size: cover;   /* 🔥 makes it fill entire screen */
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* CENTER CONTENT */
+.container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* GLASS CARD */
+.left {
+  width: 350px;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* TEXT */
+.left h2 {
+  color: #ff5e5e;
+}
+
+.subtitle {
+  color: white;
+  font-size: 13px;
+}
+
+/* LOGO */
+.logo {
+  width: 80px;
+  margin: 15px auto;
+}
+
+/* INPUT */
+form input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: none;
+}
+
+/* BUTTON */
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 25px;
+  border: none;
+
+  background: linear-gradient(135deg, #ff7a5c, #ff4b4b);
+  color: white;
+  cursor: pointer;
+}
+
+/* LINKS */
+.links {
+  margin-top: 10px;
+}
+
+.links a {
+  color: #ffb3b3;
+}
+
+/* DARK OVERLAY */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  z-index: -1;
+}
+
+/* CENTER CARD */
+.container {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* GLASS CARD */
+.left {
+  width: 350px;
+  padding: 40px;
+  border-radius: 20px;
+  text-align: center;
+
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* TITLE */
+.left h2 {
+  color: #ff5e5e;
+}
+
+.subtitle {
+  color: #eee;
+  font-size: 13px;
+}
+
+/* LOGO */
+.logo {
+  width: 80px;
+  margin: 15px auto;
+}
+
+/* INPUT */
+form input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 10px;
+  border: none;
+}
+
+/* BUTTON */
+button {
+  width: 100%;
+  padding: 12px;
+  border-radius: 25px;
+  border: none;
+
+  background: linear-gradient(135deg, #ff7a5c, #ff4b4b);
+  color: white;
+  cursor: pointer;
+}
+
+/* LINKS */
+.links {
+  margin-top: 10px;
+}
+
+.links a {
+  color: #ffb3b3;
+}
