@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import API from "../services/api";
 import "../styles/Dashboard.css";
+import "../styles/App.css"
 
 function Dashboard() {
   const [page, setPage] = useState("home");
@@ -27,6 +28,8 @@ const [filter, setFilter] = useState({
     phone: "",
     password: "",
   });
+
+  const [editMode, setEditMode] = useState(false);
 
   // ================= ACCOUNT =================
 
@@ -62,6 +65,35 @@ const [filter, setFilter] = useState({
     setPage("transactions");
   } catch {
     alert("Create account first ❌");
+  }
+};
+
+const updateAccount = async () => {
+  try {
+    await API.put(`/accounts/${selectedAccount.id}`, {
+      accountHolderName: selectedAccount.accountHolderName,
+      phone: selectedAccount.phone,
+      password: selectedAccount.password
+    });
+
+    alert("Account updated ✅");
+    setEditMode(false);
+  } catch (err) {
+    alert(err.response?.data || "Update failed ❌");
+  }
+};
+
+const deleteAccount = async () => {
+  if (!window.confirm("Are you sure you want to delete your account? ❌")) return;
+
+  try {
+    await API.delete(`/accounts/${selectedAccount.id}`);
+    alert("Account deleted ✅");
+
+    setSelectedAccount(null);
+    setPage("home");
+  } catch (err) {
+    alert(err.response?.data || "Delete failed ❌");
   }
 };
   // ================= TRANSACTIONS =================
@@ -132,17 +164,14 @@ const fetchTransactions = async (page = 1) => {
         params: {
           page: page,
           size: filter.size,
-          type: filter.type || "",
+          type: filter.type || null,
           sort: filter.sort
         }
       }
     );
 
-    console.log("Transactions API:", res.data); // ✅ DEBUG
-
-    setTransactions(res.data?.data || res.data); // handle both formats
+    setTransactions(res.data?.data || res.data);
     setPageNo(page);
-
   } catch (err) {
     console.error(err);
     alert("Error loading transactions ❌");
@@ -251,40 +280,107 @@ const fetchTransactions = async (page = 1) => {
   </div>
 )}
 
-{/* View */}
 {page === "view" && selectedAccount && (
   <div className="view-account-box">
     <h2>Account Details</h2>
+
     <table className="account-table">
       <tbody>
         <tr>
           <td>Account ID</td>
           <td>{selectedAccount.id}</td>
         </tr>
+
         <tr>
           <td>Name</td>
-          <td>{selectedAccount.accountHolderName}</td>
+          <td>
+            {editMode ? (
+              <input
+                value={selectedAccount.accountHolderName}
+                onChange={(e) =>
+                  setSelectedAccount({
+                    ...selectedAccount,
+                    accountHolderName: e.target.value
+                  })
+                }
+              />
+            ) : (
+              selectedAccount.accountHolderName
+            )}
+          </td>
         </tr>
+
         <tr>
           <td>Email</td>
           <td>{selectedAccount.email}</td>
         </tr>
+
         <tr>
           <td>Phone</td>
-          <td>{selectedAccount.phone}</td>
+          <td>
+            {editMode ? (
+              <input
+                value={selectedAccount.phone}
+                onChange={(e) =>
+                  setSelectedAccount({
+                    ...selectedAccount,
+                    phone: e.target.value
+                  })
+                }
+              />
+            ) : (
+              selectedAccount.phone
+            )}
+          </td>
         </tr>
+
         <tr>
           <td>Balance</td>
           <td>₹{selectedAccount.balance}</td>
         </tr>
+
         <tr>
           <td>Created Date</td>
-          <td>{new Date(selectedAccount.createdDate).toLocaleString()}</td>
+          <td>
+            {new Date(selectedAccount.createdDate).toLocaleString()}
+          </td>
         </tr>
-      
-          
       </tbody>
     </table>
+
+    {/* ACTION BUTTONS */}
+    {!editMode ? (
+      <>
+        <div className="action-buttons">
+  <button
+    onClick={() => setEditMode(true)}
+    className="edit-btn"
+    style={{ backgroundColor: "#007bff", color: "white" }}
+  >
+    Edit
+  </button>
+
+  <button
+    onClick={deleteAccount}
+    className="delete-btn"
+    style={{ backgroundColor: "#dc3545", color: "white" }}
+  >
+    Delete
+  </button>
+</div>
+      </>
+    ) : (
+      <>
+        <button onClick={updateAccount} className="primary-btn">
+          Save
+        </button>
+
+        <button onClick={() => setEditMode(false)} className="back-btn">
+          Cancel
+        </button>
+      </>
+    )}
+
     <button onClick={goHome} className="back-btn">Back</button>
   </div>
 )}
@@ -377,6 +473,42 @@ const fetchTransactions = async (page = 1) => {
 {page === "viewTransactions" && (
   <div className="view-account-box">
     <h2>Transaction History</h2>
+    <div className="filter-bar">
+  <select
+    value={filter.type}
+    onChange={(e) => setFilter({ ...filter, type: e.target.value })}
+  >
+    <option value="">All</option>
+    <option value="deposit">Deposit</option>
+    <option value="withdraw">Withdraw</option>
+  </select>
+
+  <select
+    value={filter.sort}
+    onChange={(e) => setFilter({ ...filter, sort: e.target.value })}
+  >
+    <option value="desc">Newest First</option>
+    <option value="asc">Oldest First</option>
+  </select>
+
+  <select
+    value={filter.size}
+    onChange={(e) =>
+      setFilter({ ...filter, size: parseInt(e.target.value) })
+    }
+  >
+    <option value={2}>1</option>
+    <option value={2}>2</option>
+    <option value={2}>3</option>
+  </select>
+
+  <button
+    className="primary-btn"
+    onClick={() => fetchTransactions(1)}
+  >
+    Apply
+  </button>
+</div>
 
     {transactions.length === 0 ? (
       <p style={{ textAlign: "center" }}>No transactions found ❌</p>
@@ -406,13 +538,19 @@ const fetchTransactions = async (page = 1) => {
     )}
 
     <div className="pagination">
-      <button disabled={pageNo === 1} onClick={() => fetchTransactions(pageNo - 1)}>
-        Prev
-      </button>
-      <button onClick={() => fetchTransactions(pageNo + 1)}>
-        Next
-      </button>
-    </div>
+  <button
+    disabled={pageNo === 1}
+    onClick={() => fetchTransactions(pageNo - 1)}
+  >
+    ⬅ Prev
+  </button>
+
+  <span>Page {pageNo}</span>
+
+  <button onClick={() => fetchTransactions(pageNo + 1)}>
+    Next ➡
+  </button>
+</div>
 
     <button onClick={() => setPage("transactions")} className="back-btn">
       Back
