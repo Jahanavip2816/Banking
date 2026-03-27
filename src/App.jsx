@@ -5,7 +5,6 @@ import ForgotPassword from "./pages/ForgetPassword";
 import Dashboard from "./pages/Dashboard";
 import "./styles/App.css"
 
-// ✅ Protected Route
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
   return token ? children : <Navigate to="/login" />;
