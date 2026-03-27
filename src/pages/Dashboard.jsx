@@ -211,8 +211,6 @@ const fetchTransactions = async (page = 1) => {
     );
   };
 
-  // ================= COMMON =================
-
   const goHome = () => setPage("home");
 
   const logout = () => {

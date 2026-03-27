@@ -21,7 +21,7 @@ function Login() {
       const res = await axios.post(
         "https://localhost:7157/api/auth/login",
         {
-          username: form.username.trim(), // ✅ sending both
+          username: form.username.trim(), 
           email: form.email.trim(),
           password: form.password.trim(),
         }

@@ -15,7 +15,6 @@ function ForgotPassword() {
     <div className="center-container">
       <div className="card">
 
-        {/* ✅ LOGO */}
         <img src="/images/abc.webp" alt="logo" style={{ width: "70px", display: "block",margin: "0 auto 15px"}}
         />
 
