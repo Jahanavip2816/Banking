@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.Transactions;
 
 public class Account
 {
@@ -18,7 +17,7 @@ public class Account
 
     [Required]
     [Phone]
-    public string Phone { get; set; } = null!;
+    public string Phone { get; set; } 
 
     [Range(0, double.MaxValue)]
     public decimal Balance { get; set; } = 0;

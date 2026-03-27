@@ -94,7 +94,7 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowReact",
         policy =>
         {
-            policy.WithOrigins("http://localhost:5173") 
+            policy.WithOrigins("http://localhost:5174") 
                   .AllowAnyHeader()
                   .AllowAnyMethod()
                   .AllowCredentials();
@@ -111,6 +111,8 @@ app.UseSwaggerUI(c =>
 });
 
 app.UseMiddleware<ExceptionMiddleware>();
+app.UseHttpsRedirection();   
+app.UseRouting();
 
 app.UseCors("AllowReact");
 app.UseAuthentication();

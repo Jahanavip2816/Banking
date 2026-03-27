@@ -3,12 +3,12 @@
 public class AccountDto
 {
     [Required]
-    public string AccountHolderName { get; set; } = null!;
+    public string AccountHolderName { get; set; }
 
     [Required]
-    public string Phone { get; set; } = null!;
+    public string Phone { get; set; }
 
     [Required]
     [MinLength(6)]
-    public string Password { get; set; } = null!;
+    public string Password { get; set; } 
 }
