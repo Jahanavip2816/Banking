@@ -3,7 +3,7 @@
 public class BankingDbContext : DbContext
 {
     public BankingDbContext(DbContextOptions<BankingDbContext> options)
-        : base(options)
+        : base(options) //passes config to DbContext
     {
     }
 
