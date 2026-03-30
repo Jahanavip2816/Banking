@@ -72,28 +72,21 @@ src/
 
 # Setup Instructions
 
-## 1️⃣ Clone the repository
+## 1 Install dependencies
 
-```id="v3b8yt"
-git clone https://github.com/your-username/abcbank-frontend.git
-cd abcbank-frontend
-```
-
-## 2️⃣ Install dependencies
-
-```id="vnsuv0"
+```"
 npm install
 ```
 
-## 3️⃣ Run the application
+## 2 Run the application
 
-```id="b3zv0u"
+```"
 npm run dev
 ```
 
 App will run on:
 
-```id="hpxzjk"
+```"
 http://localhost:5173
 ```
 
