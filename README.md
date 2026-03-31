@@ -186,20 +186,25 @@ https://localhost:7157/swagger
 
 ### 🔐 Auth
 
+```
 * POST `/api/auth/register`
 * POST `/api/auth/login`
+```
 
 ### 💰 Transactions
 
+```
 * POST `/api/transactions/deposit`
 * POST `/api/transactions/withdraw`
 * GET `/api/transactions/account/{accountId}`
+```
 
 ### 📄 Reports
 
+```
 * GET `/api/reports/transactions/{accountId}/pdf`
 * GET `/api/reports/transactions/{accountId}/csv`
-
+```
 ---
 
 ## 📊 Pagination Example
