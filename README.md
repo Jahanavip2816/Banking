@@ -61,7 +61,7 @@ This project follows a **3-Tier Architecture**:
 ---
 ## 🔐 Autorization
 
-Registration and login with Authorization.
+* Registration and login with Authorization.
 
 ![Screenshot](Banking/Screenshots/register.png)
 
@@ -75,14 +75,14 @@ Registration and login with Authorization.
 
 ![Screenshot](Banking/Screenshots/All-Accounts.png)
 
-CRUD operations for Accounts.
+* CRUD operations for Accounts.
 
 ![Screenshot](Banking/Screenshots/Swagger-UI.png)
 
 
 ## 🔂 Transactions 
 
-Transactions with Pagination.
+* Transactions with Pagination.
 
 ![Screenshot](Banking/Screenshots/Transaction-Pag1.png)
 
@@ -90,7 +90,7 @@ Transactions with Pagination.
 
 ## 📑 Reports
 
-Download of the transactions for a particular Account.
+* Download of the transactions for a particular Account.
 
 ![Screenshot](Banking/Screenshots/Transaction-CSV.png)
 
