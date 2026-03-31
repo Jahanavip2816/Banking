@@ -141,21 +141,6 @@ http://localhost:5173
 
 ---
 
-# ⚠️ Common Issues
-
-## ❌ Login shows `[object Object]`
-
-✔ Fix error handling in alert
-
-## ❌ Navigation not working
-
-✔ Ensure routes are defined in `App.jsx`
-
-## ❌ Dashboard not loading
-
-✔ Check token in `localStorage`
-
----
 
 # 📌 Future Improvements
 
