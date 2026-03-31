@@ -62,8 +62,7 @@ This project follows a **3-Tier Architecture**:
 
 ## 👤Account APIs
 
-Banking/Screenshots/Single Account.png
-
+![Screenshot](Banking/Screenshots/Single-Account.png)
 ## 📂 Project Structure
 
 ```
