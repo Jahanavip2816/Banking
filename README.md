@@ -59,10 +59,32 @@ This project follows a **3-Tier Architecture**:
 * CSV Helper (CSV export)
 
 ---
+## 🔐 Autorization 
+![Screenshot](Banking/Screenshots/Login.png)
+
+![Screenshot](Banking/Screenshots/Authorize.png)
+
+![Screenshot](Banking/Screenshots/register.png)
 
 ## 👤Account APIs
 
 ![Screenshot](Banking/Screenshots/Single-Account.png)
+
+![Screenshot](Banking/Screenshots/All-Accounts.png)
+
+## 🔂 Transactions 
+
+![Screenshot](Banking/Screenshots/Transaction-CSV.png)
+
+![Screenshot](Banking/Screenshots/Transaction-PDF.png)
+
+##📑 Pagination
+
+![Screenshot](Banking/Screenshots/Transaction-Pag1.png)
+
+![Screenshot](Banking/Screenshots/Transaction-Page.png)
+
+
 ## 📂 Project Structure
 
 ```
