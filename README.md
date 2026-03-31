@@ -46,6 +46,37 @@ This frontend application provides a clean and interactive interface for users t
 
 ---
 
+## 🔐 Authorization
+* Login PAge
+
+![Login](src/Screenshots/Login.png)
+
+## 👤 Accounts
+![Image](src/Screenshots/Account.png)
+
+* CRUD for Account
+![Image](src/Screenshots/View-Page.png)
+
+## 📑Transactions
+
+* To Deposit Amount with description and password security.
+
+![Image](src/Screenshots/Deposit.png)
+
+* To Withdraw Amount with description and password security.
+
+![Image](src/Screenshots/Withdraw.png)
+
+* Pagination with filtering and sorting which helps to see a particular records of transactions.
+
+![Image](src/Screenshots/Transactions-Page.png)
+
+## 📝 Reports
+
+![Image](src/Screenshots/Reports.png)
+
+---
+
 # 📁 Project Structure
 ```
 src/
