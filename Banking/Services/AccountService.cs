@@ -3,9 +3,9 @@
 public class AccountService : IAccountService
 {
     private readonly IAccountRepository _repo;
-    private readonly PasswordService _passwordService;
+    private readonly IPasswordService _passwordService;
 
-    public AccountService(IAccountRepository repo, PasswordService passwordService)
+    public AccountService(IAccountRepository repo, IPasswordService passwordService)
     {
         _repo = repo;
         _passwordService = passwordService;

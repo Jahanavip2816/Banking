@@ -13,8 +13,8 @@ QuestPDF.Settings.License = LicenseType.Community;
 builder.Services.AddDbContext<BankingDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<PasswordService>();
-builder.Services.AddScoped<JwtService>();
+builder.Services.AddScoped<IPasswordService , PasswordService>();
+builder.Services.AddScoped<IJwtService, JwtService>();
 
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
