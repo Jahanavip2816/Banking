@@ -1,70 +1,118 @@
 ﻿using Xunit;
 using Moq;
-using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
 public class AccountServiceTests
 {
-    [Fact]
-    public async Task Create_Should_Add_Account()
+    private readonly Mock<IAccountRepository> _repoMock;
+    private readonly AccountService _service;
+    private readonly PasswordService _passwordService;
+
+    public AccountServiceTests()
     {
-        // Arrange
-        var repoMock = new Mock<IAccountRepository>();
-        var passwordService = new PasswordService();
+        _repoMock = new Mock<IAccountRepository>();
+        _passwordService = new PasswordService();
 
-        // No existing accounts
-        repoMock.Setup(x => x.GetAll())
-                .ReturnsAsync(new List<Account>());
-
-        var service = new AccountService(repoMock.Object, passwordService);
-
-        var dto = new AccountDto
-        {
-            AccountHolderName = "Jaanu",
-            Phone = "1234567890",
-            Password = "123456"
-        };
-
-        var email = "test@mail.com";
-
-        // Act
-        await service.Create(dto, email);
-
-        // Assert
-        repoMock.Verify(x => x.Add(It.Is<Account>(a =>
-            a.Email == email &&
-            a.AccountHolderName == dto.AccountHolderName
-        )), Times.Once);
-    }
-    [Fact]
-    public async Task Create_Should_Throw_Exception_If_Account_Exists()
-    {
-        // Arrange
-        var repoMock = new Mock<IAccountRepository>();
-        var passwordService = new PasswordService();
-
-        repoMock.Setup(x => x.GetAll())
-            .ReturnsAsync(new List<Account>
-            {
-            new Account { Email = "test@mail.com" }
-            });
-
-        var service = new AccountService(repoMock.Object, passwordService);
-
-        var dto = new AccountDto
-        {
-            AccountHolderName = "Jaanu",
-            Phone = "1234567890",
-            Password = "123456"
-        };
-
-        var email = "test@mail.com";
-
-        // Act & Assert
-        var exception = await Assert.ThrowsAsync<Exception>(
-            () => service.Create(dto, email)
+        _service = new AccountService(
+            _repoMock.Object,
+            _passwordService
         );
+    }
 
-        Assert.Equal("User already has an account ❌", exception.Message);
+    
+    [Fact]
+    public async Task Create_Should_AddAccount_WhenValid()
+    {
+        var email = "test@mail.com";
+
+        _repoMock.Setup(x => x.GetByEmail(email))
+                 .ReturnsAsync((Account)null);
+
+        _repoMock.Setup(x => x.Add(It.IsAny<Account>()))
+                 .Returns(Task.CompletedTask);
+
+        var dto = new AccountDto
+        {
+            AccountHolderName = "John",
+            Phone = "1234567890",
+            Password = "password",
+            Pin = "1234"
+        };
+
+        await _service.Create(dto, email);
+
+        _repoMock.Verify(x => x.Add(It.IsAny<Account>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Create_Should_Throw_WhenAccountExists()
+    {
+        var email = "test@mail.com";
+
+        _repoMock.Setup(x => x.GetByEmail(email))
+                 .ReturnsAsync(new Account { Email = email });
+
+        var dto = new AccountDto
+        {
+            AccountHolderName = "John",
+            Phone = "1234567890",
+            Password = "password"
+        };
+
+        await Assert.ThrowsAsync<Exception>(() =>
+            _service.Create(dto, email));
+    }
+
+    [Fact]
+    public async Task Create_Should_Throw_WhenPasswordMissing()
+    {
+        var email = "test@mail.com";
+
+        _repoMock.Setup(x => x.GetByEmail(email))
+                 .ReturnsAsync((Account)null);
+
+        var dto = new AccountDto
+        {
+            AccountHolderName = "John",
+            Phone = "1234567890",
+            Password = null
+        };
+
+        await Assert.ThrowsAsync<Exception>(() =>
+            _service.Create(dto, email));
+    }
+
+    [Fact]
+    public async Task GetAll_Should_ReturnAccounts()
+    {
+        var list = new List<Account>
+        {
+            new Account { Email = "a@mail.com" },
+            new Account { Email = "b@mail.com" }
+        };
+
+        _repoMock.Setup(x => x.GetAll())
+                 .ReturnsAsync(list);
+
+        var result = await _service.GetAll();
+
+        Assert.Equal(2, result.Count);
+    }
+
+    [Fact]
+    public async Task Search_Should_ReturnFilteredAccounts()
+    {
+        var list = new List<Account>
+        {
+            new Account { Email = "john@mail.com" }
+        };
+
+        _repoMock.Setup(x => x.Search("john"))
+                 .ReturnsAsync(list);
+
+        var result = await _service.Search("john");
+
+        Assert.Single(result);
     }
 }

@@ -5,16 +5,15 @@ using QuestPDF;
 [Route("api/reports")]
 public class ReportsController : ControllerBase
 {
-    private readonly ReportService _service;
+    private readonly IReportService _service;
     private readonly BankingDbContext _context;
 
-    public ReportsController(ReportService service, BankingDbContext context)
+    public ReportsController(IReportService service, BankingDbContext context)
     {
         _service = service;
         _context = context;
     }
 
-    // CSV DOWNLOAD
     [HttpGet("transactions/{accountId}/csv")]
     public async Task<IActionResult> GetCsv(int accountId)
     {
@@ -25,7 +24,6 @@ public class ReportsController : ControllerBase
             $"transactions_Account{accountId}.csv");
     }
 
-    // FULL REPORT PDF
     [HttpGet("transactions/{accountId}/pdf")]
     public async Task<IActionResult> GetPdf(int accountId)
     {
@@ -43,7 +41,6 @@ public class ReportsController : ControllerBase
         return File(pdf, "application/pdf",
             $"transactions_Account{accountId}.pdf");
     }
-    // ATM RECEIPT PDF
     [HttpGet("transactions/{accountId}/pdf-receipt")]
     public async Task<IActionResult> GetReceipt(int accountId)
     {

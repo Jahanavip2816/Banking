@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-public class ReportService
+public class ReportService : IReportService
 {
     private readonly BankingDbContext _context;
 

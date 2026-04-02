@@ -18,21 +18,33 @@ public class TransactionRepository : ITransactionRepository
     public async Task<List<Transaction>> GetByAccount(int accountId)
     {
         return await _context.Transactions
+            .AsNoTracking()
             .Where(t => t.AccountId == accountId)
+            .OrderByDescending(t => t.Date)
             .ToListAsync();
     }
+
     public async Task<(List<Transaction>, int)> GetPagedFiltered(
-    int accountId, int page, int size, string type, string sort)
+        int accountId, int page, int size, string type, string sort)
     {
         var query = _context.Transactions
+            .AsNoTracking()
             .Where(t => t.AccountId == accountId);
 
-        if (!string.IsNullOrEmpty(type))
+        if (!string.IsNullOrWhiteSpace(type))
         {
-            query = query.Where(t => t.Type.ToLower() == type.ToLower());
+            var lowerType = type.ToLower();
+
+            if (lowerType == "transfer")
+            {
+                query = query.Where(t => t.Type.ToLower().Contains("transfer"));
+            }
+            else
+            {
+                query = query.Where(t => t.Type.ToLower() == lowerType);
+            }
         }
 
-        // ✅ SORT (Date)
         query = sort?.ToLower() == "asc"
             ? query.OrderBy(t => t.Date)
             : query.OrderByDescending(t => t.Date);
@@ -45,5 +57,11 @@ public class TransactionRepository : ITransactionRepository
             .ToListAsync();
 
         return (data, total);
+    }
+
+    public async Task AddRange(List<Transaction> transactions)
+    {
+        await _context.Transactions.AddRangeAsync(transactions);
+        await _context.SaveChangesAsync();
     }
 }

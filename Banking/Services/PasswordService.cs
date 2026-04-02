@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-public class PasswordService
+public class PasswordService : IPasswordService
 {
     public string HashPassword(string password)
     {

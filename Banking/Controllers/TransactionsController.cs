@@ -1,52 +1,144 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/transactions")]
-[Authorize] 
+[Authorize]
 public class TransactionsController : ControllerBase
 {
-    private readonly TransactionService _service;
-    private readonly ITransactionRepository _repo;
+    private readonly ITransactionService _service;
+    private readonly IAccountRepository _accRepo;
 
     public TransactionsController(
-        TransactionService service,
-        ITransactionRepository repo)
+        ITransactionService service,
+        IAccountRepository accRepo)
     {
         _service = service;
-        _repo = repo;
+        _accRepo = accRepo;
+    }
+
+    private async Task<bool> IsOwner(int accountId)
+    {
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+        if (string.IsNullOrEmpty(email))
+            return false;
+
+        var account = await _accRepo.GetById(accountId);
+
+        return account != null && account.Email == email;
     }
 
     [HttpPost("deposit")]
     public async Task<IActionResult> Deposit(TransactionDto dto)
     {
-        await _service.Deposit(dto);
-        return Ok("Deposit successful");
+        try
+        {
+            if (!await IsOwner(dto.AccountId))
+                return Unauthorized("Access denied ❌");
+
+            var transferDto = new TransferDto
+            {
+                AccountId = dto.AccountId,
+                Amount = dto.Amount,
+                Description = dto.Description,
+                Pin = dto.Pin
+            };
+
+            await _service.Deposit(transferDto);
+
+            return Ok(new { message = "Deposit successful" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpPost("withdraw")]
     public async Task<IActionResult> Withdraw(TransactionDto dto)
     {
-        await _service.Withdraw(dto);
-        return Ok("Withdrawal successful");
+        try
+        {
+            if (!await IsOwner(dto.AccountId))
+                return Unauthorized("Access denied ❌");
+
+            var transferDto = new TransferDto
+            {
+                AccountId = dto.AccountId,
+                Amount = dto.Amount,
+                Description = dto.Description,
+                Pin = dto.Pin
+            };
+
+            await _service.Withdraw(transferDto);
+
+            return Ok(new { message = "Withdrawal successful" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+    }
+
+    [HttpPost("transfer")]
+    public async Task<IActionResult> Transfer(TransferDto dto)
+    {
+        try
+        {
+            if (!await IsOwner(dto.AccountId))
+                return Unauthorized("Access denied ❌");
+
+            await _service.Transfer(dto);
+
+            return Ok(new { message = "Transfer successful" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpGet("account/{accountId}")]
     public async Task<IActionResult> GetByAccount(int accountId)
     {
-        var result = await _service.GetTransactionsByAccount(accountId);
-        return Ok(result);
+        try
+        {
+            if (!await IsOwner(accountId))
+                return Unauthorized("Access denied ❌");
+
+            var result = await _service.GetTransactionsByAccount(accountId);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 
     [HttpGet("account/{accountId}/paged")]
     public async Task<IActionResult> GetPaged(
-    int accountId,
-    int page = 1,
-    int size = 5,
-    string type = null,
-    string sort = "desc")
+        int accountId,
+        int page = 1,
+        int size = 5,
+        string type = null,
+        string sort = "desc")
     {
-        var result = await _service.GetPagedFiltered(accountId, page, size, type, sort);
-        return Ok(result);
+        try
+        {
+            if (!await IsOwner(accountId))
+                return Unauthorized("Access denied ❌");
+
+            var result = await _service.GetPagedFiltered(
+                accountId, page, size, type, sort);
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 }

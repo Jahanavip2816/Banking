@@ -1,40 +1,77 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 
 [ApiController]
 [Route("api/accounts")]
 public class AccountsController : ControllerBase
 {
-    private readonly AccountService _service;
+    private readonly IAccountService _service;
     private readonly IAccountRepository _repo;
+    private readonly BankingDbContext _context;
 
-    public AccountsController(AccountService service, IAccountRepository repo)
+    public AccountsController(
+        IAccountService service,
+        IAccountRepository repo,
+        BankingDbContext context)
     {
         _service = service;
         _repo = repo;
+        _context = context;
     }
 
- 
-    [HttpPost]
+
+[HttpPost]
     public async Task<IActionResult> Create(AccountDto dto)
     {
-        var email = User.FindFirst(ClaimTypes.Email)?.Value;
-
-        if (string.IsNullOrEmpty(email))
-            return Unauthorized("Invalid token");
-
         try
         {
-            await _service.Create(dto, email);
-            return StatusCode(201, "Account created successfully");
+            var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+            Console.WriteLine("EMAIL FROM TOKEN: " + email);
+
+            if (string.IsNullOrEmpty(email))
+                return Unauthorized("Invalid token");
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == email);
+
+            if (user == null)
+                return BadRequest("User not found ❌");
+
+            var existing = await _repo.GetByEmail(email);
+
+            if (existing != null)
+                return BadRequest("Account already exists ❌");
+
+            var account = new Account
+            {
+                AccountHolderName = dto.AccountHolderName,
+                Phone = dto.Phone,
+                Email = email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+                PinHash = BCrypt.Net.BCrypt.HashPassword(dto.Pin),
+                Balance = 0,
+                CreatedDate = DateTime.Now,
+                UserId = user.Id
+            };
+
+            await _repo.Add(account);
+
+            return Ok("Account created successfully ✅");
         }
         catch (Exception ex)
         {
-            return BadRequest(ex.Message);
+            Console.WriteLine("ERROR: " + ex.Message);
+            Console.WriteLine("INNER: " + ex.InnerException?.Message);
+
+            return StatusCode(500, new
+            {
+                message = ex.InnerException?.Message
+            });
         }
     }
 
-    
     [HttpGet("my")]
     public async Task<IActionResult> GetMyAccount()
     {
@@ -43,9 +80,7 @@ public class AccountsController : ControllerBase
         if (string.IsNullOrEmpty(email))
             return Unauthorized("Invalid token");
 
-        var accounts = await _repo.GetAll();
-
-        var account = accounts.FirstOrDefault(a => a.Email == email);
+        var account = await _repo.GetByEmail(email);
 
         if (account == null)
             return NotFound("No account found");
@@ -53,7 +88,6 @@ public class AccountsController : ControllerBase
         return Ok(account);
     }
 
-   
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
@@ -61,11 +95,13 @@ public class AccountsController : ControllerBase
         return Ok(accounts);
     }
 
-    
     [HttpGet("{id}")]
     public async Task<IActionResult> GetById(int id)
     {
         var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+        if (string.IsNullOrEmpty(email))
+            return Unauthorized("Invalid token");
 
         var account = await _repo.GetById(id);
 
@@ -78,11 +114,13 @@ public class AccountsController : ControllerBase
         return Ok(account);
     }
 
-    
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, AccountDto dto)
     {
         var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+        if (string.IsNullOrEmpty(email))
+            return Unauthorized("Invalid token");
 
         var account = await _repo.GetById(id);
 
@@ -97,14 +135,16 @@ public class AccountsController : ControllerBase
 
         await _repo.Update(account);
 
-        return Ok("Account updated successfully");
+        return Ok(new { message = "Account updated successfully" });
     }
 
- 
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(int id)
     {
         var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+        if (string.IsNullOrEmpty(email))
+            return Unauthorized("Invalid token");
 
         var account = await _repo.GetById(id);
 
@@ -116,7 +156,7 @@ public class AccountsController : ControllerBase
 
         await _repo.Delete(account);
 
-        return Ok("Account deleted successfully");
+        return Ok(new { message = "Account deleted successfully" });
     }
 
     [HttpGet("search")]
@@ -124,10 +164,34 @@ public class AccountsController : ControllerBase
     {
         var email = User.FindFirst(ClaimTypes.Email)?.Value;
 
+        if (string.IsNullOrEmpty(email))
+            return Unauthorized("Invalid token");
+
         var results = await _service.Search(keyword);
 
         var filtered = results.Where(a => a.Email == email);
 
         return Ok(filtered);
+    }
+
+    // ✅ UPDATE PIN
+    [HttpPut("{id}/pin")]
+    public async Task<IActionResult> UpdatePin(int id, string newPin)
+    {
+        var email = User.FindFirst(ClaimTypes.Email)?.Value;
+
+        var account = await _repo.GetById(id);
+
+        if (account == null)
+            return NotFound("Account not found");
+
+        if (account.Email != email)
+            return Unauthorized("Access denied ❌");
+
+        account.PinHash = BCrypt.Net.BCrypt.HashPassword(newPin);
+
+        await _repo.Update(account);
+
+        return Ok("PIN updated successfully");
     }
 }

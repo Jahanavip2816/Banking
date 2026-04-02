@@ -1,9 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-public class TransactionDto
+public class TransferDto
 {
+    public int Id { get; set; }
+
     [Required]
     public int AccountId { get; set; }
+
+    public int? ReceiverAccountId { get; set; }
 
     [Required]
     [Range(0.01, double.MaxValue, ErrorMessage = "Amount must be positive")]

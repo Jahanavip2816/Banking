@@ -10,10 +10,13 @@ public class AccountRepository : IAccountRepository
     }
 
     public async Task<List<Account>> GetAll()
-        => await _context.Accounts.ToListAsync();
+        => await _context.Accounts
+            .AsNoTracking()
+            .ToListAsync();
 
     public async Task<Account> GetById(int id)
-        => await _context.Accounts.FindAsync(id);
+        => await _context.Accounts
+            .FirstOrDefaultAsync(a => a.Id == id);
 
     public async Task Add(Account account)
     {
@@ -32,11 +35,21 @@ public class AccountRepository : IAccountRepository
         _context.Accounts.Remove(account);
         await _context.SaveChangesAsync();
     }
+    public async Task<Account> GetByEmail(string email)
+    {
+        return await _context.Accounts
+            .FirstOrDefaultAsync(a => a.Email == email);
+    }
 
     public async Task<List<Account>> Search(string keyword)
     {
+        keyword = keyword?.ToLower() ?? "";
+
         return await _context.Accounts
-            .Where(a => a.AccountHolderName.Contains(keyword) || a.Email.Contains(keyword))
+            .AsNoTracking()
+            .Where(a =>
+                a.AccountHolderName.ToLower().Contains(keyword) ||
+                a.Email.ToLower().Contains(keyword))
             .ToListAsync();
     }
 }

@@ -19,7 +19,12 @@ public class Transaction
     public string Type { get; set; }
 
     [StringLength(250)]
-    public string Description { get; set; } 
+    public string Description { get; set; }
 
     public DateTime Date { get; set; } = DateTime.UtcNow;
+
+    [NotMapped]
+    [Required(ErrorMessage = "PIN is required for transactions")]
+    [RegularExpression(@"^\d{4}$", ErrorMessage = "PIN must be exactly 4 digits")]
+    public string Pin { get; set; }
 }

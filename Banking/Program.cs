@@ -19,9 +19,9 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IAccountRepository, AccountRepository>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
-builder.Services.AddScoped<AccountService>();
-builder.Services.AddScoped<TransactionService>();
-builder.Services.AddScoped<ReportService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ITransactionService, TransactionService>();
+builder.Services.AddScoped<IReportService, ReportService>();
 
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
